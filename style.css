@@ -675,3 +675,49 @@ button:disabled {
         font-size: 16px;
     }
 }
+.board-rotate {
+  animation: boardSpin 0.8s ease forwards;
+}
+
+.board-unrotate {
+  animation: boardSpinBack 0.8s ease forwards;
+}
+
+@keyframes boardSpin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(8deg) scale(1.05);
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+@keyframes boardSpinBack {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(-8deg) scale(1.05);
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+.confetti-piece {
+    position: fixed;
+    top: -20px;
+    border-radius: 50%;
+    opacity: 0.9;
+    animation-name: confetti-fall;
+    animation-timing-function: linear;
+    z-index: 9999;
+}
+
+@keyframes confetti-fall {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(110vh) rotate(360deg); }
+}

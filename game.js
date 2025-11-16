@@ -120,6 +120,29 @@ function ensureAudioContext() {
   }
 }
 
+function playHitSound() {
+  ensureAudioContext();
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  const now = audioCtx.currentTime;
+
+  osc.type = "square";
+  osc.frequency.setValueAtTime(80, now);
+  osc.frequency.exponentialRampToValueAtTime(40, now + 0.15);
+
+  gain.gain.setValueAtTime(0.001, now);
+  gain.gain.exponentialRampToValueAtTime(0.5, now + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start(now);
+  osc.stop(now + 0.25);
+}
+
+
 function playFeedbackSound(isCorrect) {
   ensureAudioContext();
   const osc = audioCtx.createOscillator();
@@ -430,6 +453,7 @@ function onPlayerLanded(player) {
   const others = players.filter(p => p.id !== player.id && p.pathIndex === player.pathIndex);
   if (others.length > 0) {
     const victim = others[0];
+    playHitSound();
     const victimPawn = document.querySelector(`.pawn[data-player-id="${victim.id}"]`);
     const attackerPawn = document.querySelector(`.pawn[data-player-id="${player.id}"]`);
 
@@ -465,6 +489,32 @@ function endTurn() {
   setTurnInfo();
 }
 
+function spawnConfetti() {
+  const confettiCount = 40;
+  const duration = 1600;
+
+  for (let i = 0; i < confettiCount; i++) {
+    const conf = document.createElement("div");
+    conf.classList.add("confetti-piece");
+
+    conf.style.left = Math.random() * 100 + "vw";
+
+    const size = 6 + Math.random() * 8;
+    conf.style.width = size + "px";
+    conf.style.height = size + "px";
+
+    const colors = ["#ff4757", "#ffa502", "#2ed573", "#1e90ff", "#eccc68", "#ff6b81", "#70a1ff"];
+    conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+    const fallTime = 1 + Math.random();
+    conf.style.animationDuration = fallTime + "s";
+
+    document.body.appendChild(conf);
+
+    setTimeout(() => conf.remove(), duration);
+  }
+}
+
 
 let activeQuestion = null;
 
@@ -485,11 +535,15 @@ function showQuestionModal(player, tileType, boardIndex) {
   }
 
   questionModalEl.classList.remove("hidden");
+  boardEl.classList.remove("board-unrotate");
+  boardEl.classList.add("board-rotate");
 }
 
 function hideQuestionModal() {
   questionModalEl.classList.add("hidden");
   activeQuestion = null;
+  boardEl.classList.remove("board-rotate");
+  boardEl.classList.add("board-unrotate");
 }
 
 function onQuestionResult(isCorrect) {
@@ -502,6 +556,7 @@ function onQuestionResult(isCorrect) {
   playFeedbackSound(isCorrect);
 
   if (isCorrect) {
+    spawnConfetti();
     if (tileType === "key") {
       player.keys++;
     } else if (tileType === "door") {
