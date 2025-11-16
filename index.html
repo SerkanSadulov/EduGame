@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="bg">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Лов за Съкровища</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="game-wrapper">
+    <header class="top-bar">
+      <div class="logo-title">
+        <div class="starfish">⭐</div>
+        <h1>Лов за Съкровища</h1>
+      </div>
+      <div class="controls-group">
+        <label>
+          Отбори:
+          <select id="playerCount">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </label>
+
+        <label>
+          Ниво:
+          <select id="levelSelect">
+            <option value="1">0–10</option>
+            <option value="2">0–20</option>
+          </select>
+        </label>
+
+        <label>
+          Зар:
+          <select id="diceMode">
+            <option value="auto">В играта</option>
+            <option value="manual">Външен (ръчно)</option>
+          </select>
+        </label>
+
+        <button id="newGameBtn" class="primary-btn">Нова игра</button>
+      </div>
+    </header>
+
+    <main class="main-layout">
+      <section class="board-section">
+        <div id="board" class="board-grid">
+
+        </div>
+
+        <div class="bottom-panel">
+          <div class="turn-info">
+            <div>Ред е на: <span id="currentPlayerName">—</span></div>
+            <div>Резултат от зара: <span id="diceResult">-</span></div>
+          </div>
+
+          <div class="dice-controls">
+            <div class="dice-visual" id="diceVisual" aria-label="Зар">
+              <div class="dice-number" id="diceNumber">-</div>
+            </div>
+
+            <button id="rollDiceBtn" class="primary-btn">Хвърли зар</button>
+
+            <div id="manualDiceBox" class="manual-dice hidden">
+              <input type="number" id="manualDiceInput" min="1" max="6" placeholder="1–6">
+              <button id="applyManualDice" class="secondary-btn">Задай ход</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="sidebar">
+        <h2>Класация</h2>
+        <div id="scoreboard"></div>
+
+        <div class="legend">
+          <h3>Легенда</h3>
+          <p><span class="legend-icon start">⭐</span> Начало – Морска звезда</p>
+          <p><span class="legend-icon key">🔑</span> Ключ</p>
+          <p><span class="legend-icon door">🚪</span> Врата</p>
+          <p><span class="legend-icon treasure">💰</span> Съкровище</p>
+        </div>
+
+        <div class="rules-box">
+          <h3>Правила (кратко)</h3>
+          <ul>
+            <li>Фигурите се движат по часовниковата стрелка.</li>
+            <li>При застъпване противникът се връща на ⭐.</li>
+            <li>На специална клетка се задава въпрос.</li>
+            <li>За съкровище е нужен ключ. Без ключ – остава заключено.</li>
+            <li>Победа: първи до 5 съкровища или 3 отключени врати.</li>
+          </ul>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div id="questionModal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <h2 id="modalTitle">Въпрос</h2>
+      <div id="cardTypeLabel" class="card-type-label"></div>
+      <div id="questionText" class="question-text"></div>
+      <div class="answer-buttons">
+        <button id="correctBtn" class="primary-btn wide">Отговориха правилно ✅</button>
+        <button id="wrongBtn" class="secondary-btn wide">Отговориха грешно ❌</button>
+      </div>
+      <p class="helper-text">
+        Учителят решава дали отговорът е правилен. Децата отговарят устно.
+      </p>
+    </div>
+  </div>
+
+  <div id="winnerModal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content winner">
+      <h2>🏆 Победител!</h2>
+      <p id="winnerText"></p>
+      <button id="closeWinnerBtn" class="primary-btn wide">Нова игра</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+
+</html>
