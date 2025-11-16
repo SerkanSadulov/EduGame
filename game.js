@@ -25,7 +25,8 @@ const CARD_LABELS = {
   start: "Начална клетка"
 };
 
-// ---- РЕЗЕРВНИ ВЪПРОСИ ----
+const PAWN_ICONS = ["🐠", "🐢", "🐙", "🦀"];
+
 const DEFAULT_QUESTIONS = {
   level1: {
     any: [
@@ -99,7 +100,7 @@ const diceNumberEl = document.getElementById("diceNumber");
 const manualDiceBoxEl = document.getElementById("manualDiceBox");
 const manualDiceInputEl = document.getElementById("manualDiceInput");
 const applyManualDiceBtn = document.getElementById("applyManualDice");
-
+const messageBarEl = document.getElementById("messageBar");
 const questionModalEl = document.getElementById("questionModal");
 const modalTitleEl = document.getElementById("modalTitle");
 const cardTypeLabelEl = document.getElementById("cardTypeLabel");
@@ -115,32 +116,52 @@ const closeWinnerBtn = document.getElementById("closeWinnerBtn");
 let audioCtx = null;
 
 function ensureAudioContext() {
-  if (!audioCtx) {
+  if (!audioCtx || audioCtx.state === "closed") {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === "suspended") {
+    audioCtx.resume();
+  }
+}
+
+function setMessage(text) {
+  if (messageBarEl) {
+    messageBarEl.textContent = text;
   }
 }
 
 function playHitSound() {
   ensureAudioContext();
+  const ctx = audioCtx;
+  const now = ctx.currentTime;
 
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  const now = audioCtx.currentTime;
+  const osc1 = ctx.createOscillator();
+  const osc2 = ctx.createOscillator();
+  const gain = ctx.createGain();
 
-  osc.type = "square";
-  osc.frequency.setValueAtTime(80, now);
-  osc.frequency.exponentialRampToValueAtTime(40, now + 0.15);
+  osc1.type = "square";
+  osc2.type = "square";
+
+  osc1.frequency.setValueAtTime(280, now);
+  osc2.frequency.setValueAtTime(180, now);
+
+  osc1.frequency.exponentialRampToValueAtTime(120, now + 0.18);
+  osc2.frequency.exponentialRampToValueAtTime(90, now + 0.18);
 
   gain.gain.setValueAtTime(0.001, now);
-  gain.gain.exponentialRampToValueAtTime(0.5, now + 0.02);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+  gain.gain.exponentialRampToValueAtTime(0.6, now + 0.03);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
 
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
+  osc1.connect(gain);
+  osc2.connect(gain);
+  gain.connect(ctx.destination);
 
-  osc.start(now);
-  osc.stop(now + 0.25);
+  osc1.start(now);
+  osc2.start(now);
+  osc1.stop(now + 0.3);
+  osc2.stop(now + 0.3);
 }
+
 
 
 function playFeedbackSound(isCorrect) {
@@ -355,18 +376,24 @@ function updatePawnPosition(player, animateJump = false) {
   const pawn = document.createElement("div");
   pawn.classList.add("pawn", `player-${player.id}`);
   pawn.dataset.playerId = player.id;
-  pawn.textContent = player.id + 1;
-
-  if (animateJump) {
-    pawn.classList.add("jump");
-    pawn.addEventListener("animationend", () => {
-      pawn.classList.remove("jump");
-    }, { once: true });
-  }
+  pawn.textContent = PAWN_ICONS[player.id] || (player.id + 1);
 
   cell.appendChild(pawn);
-}
 
+  if (animateJump && window.gsap) {
+    gsap.fromTo(
+      pawn,
+      { y: -20, scale: 0.6, rotation: -10 },
+      {
+        y: 0,
+        scale: 1,
+        rotation: 0,
+        duration: 0.3,
+        ease: "bounce.out"
+      }
+    );
+  }
+}
 
 function setTurnInfo() {
   if (gameOver || players.length === 0) {
@@ -453,6 +480,7 @@ function onPlayerLanded(player) {
   const others = players.filter(p => p.id !== player.id && p.pathIndex === player.pathIndex);
   if (others.length > 0) {
     const victim = others[0];
+    setMessage(`${player.name} настъпи ${victim.name}! ${victim.name} се връща на ⭐ Начало! 💥`);
     playHitSound();
     const victimPawn = document.querySelector(`.pawn[data-player-id="${victim.id}"]`);
     const attackerPawn = document.querySelector(`.pawn[data-player-id="${player.id}"]`);
@@ -515,7 +543,6 @@ function spawnConfetti() {
   }
 }
 
-
 let activeQuestion = null;
 
 function showQuestionModal(player, tileType, boardIndex) {
@@ -535,15 +562,57 @@ function showQuestionModal(player, tileType, boardIndex) {
   }
 
   questionModalEl.classList.remove("hidden");
-  boardEl.classList.remove("board-unrotate");
-  boardEl.classList.add("board-rotate");
+
+  if (window.gsap) {
+    const modalContent = questionModalEl.querySelector(".modal-content");
+    const backdrop = questionModalEl.querySelector(".modal-backdrop");
+
+    if (backdrop) {
+      gsap.fromTo(
+        backdrop,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.25, ease: "power1.out" }
+      );
+    }
+
+    if (modalContent) {
+      gsap.fromTo(
+        modalContent,
+        {
+          scale: 0.6,
+          y: -40,
+          opacity: 0,
+          rotation: -8
+        },
+        {
+          scale: 1,
+          y: 0,
+          opacity: 1,
+          rotation: 0,
+          duration: 0.45,
+          ease: "back.out(1.8)"
+        }
+      );
+    }
+
+    if (boardEl) {
+      gsap.fromTo(
+        boardEl,
+        { rotation: -4, scale: 0.97 },
+        {
+          rotation: 0,
+          scale: 1,
+          duration: 0.45,
+          ease: "elastic.out(1, 0.5)"
+        }
+      );
+    }
+  }
 }
 
 function hideQuestionModal() {
   questionModalEl.classList.add("hidden");
   activeQuestion = null;
-  boardEl.classList.remove("board-rotate");
-  boardEl.classList.add("board-unrotate");
 }
 
 function onQuestionResult(isCorrect) {
@@ -557,6 +626,16 @@ function onQuestionResult(isCorrect) {
 
   if (isCorrect) {
     spawnConfetti();
+    const praises = [
+      "Браво! Чудесен отговор! 🎉",
+      "Страхотна работа! ⭐",
+      "Браво, продължавайте така! 🙌",
+      "Отлично! Много сте добри! 🌟"
+    ];
+
+    const msg = praises[Math.floor(Math.random() * praises.length)];
+    setMessage(`${player.name}: ${msg}`);
+
     if (tileType === "key") {
       player.keys++;
     } else if (tileType === "door") {
@@ -566,6 +645,13 @@ function onQuestionResult(isCorrect) {
         player.keys--;
         player.treasures++;
       } else {
+        const tryAgain = [
+          "Нищо, следващият път ще стане! 😊",
+          "Почти! Опитайте отново следващия ход! 💪",
+          "Грешките помагат да научим повече! 📚"
+        ];
+        const msg = tryAgain[Math.floor(Math.random() * tryAgain.length)];
+        setMessage(`${player.name}: ${msg}`);
       }
     }
     renderScoreboard();
@@ -590,6 +676,8 @@ function checkWinCondition(player) {
 function showWinner(player) {
   winnerTextEl.textContent = `${player.name} събра достатъчно съкровища / врати и печели играта!`;
   winnerModalEl.classList.remove("hidden");
+  spawnConfetti();
+  setMessage(`🏆 ${player.name} печели играта! Браво на всички играчи! 🎉`);
 }
 
 function hideWinnerModal() {
@@ -612,9 +700,8 @@ function startNewGame() {
   renderScoreboard();
   placeAllPawns();
   setTurnInfo();
+  setMessage(`Играта започва! Ред е на ${players[currentPlayerIndex].name}. 🎲`);
 }
-
-// ===== СЪБИТИЯ =====
 
 newGameBtn.addEventListener("click", () => {
   startNewGame();

@@ -1,18 +1,19 @@
-<!DOCTYPE html>
 <html lang="bg">
 
 <head>
   <meta charset="UTF-8" />
-  <title>Лов на Съкровища</title>
+  <title>Лов на съкровища</title>
   <link rel="stylesheet" href="style.css" />
+
+  <link rel="icon" type="image/png" href="logo.png" />
 </head>
 
 <body>
   <div class="game-wrapper">
     <header class="top-bar">
       <div class="logo-title">
-        <div class="starfish">⭐</div>
-        <h1>Лов на Съкровища</h1>
+        <img src="logo.png" alt="Лов на Съкровища - лого" class="logo-img" />
+        <h1>Лов на съкровища</h1>
       </div>
       <div class="controls-group">
         <label>
@@ -46,9 +47,7 @@
 
     <main class="main-layout">
       <section class="board-section">
-        <div id="board" class="board-grid">
-
-        </div>
+        <div id="board" class="board-grid"></div>
 
         <div class="bottom-panel">
           <div class="turn-info">
@@ -68,6 +67,9 @@
               <button id="applyManualDice" class="secondary-btn">Задай ход</button>
             </div>
           </div>
+        </div>
+        <div id="messageBar" class="message-bar">
+          Добре дошли в „Лов на съкровища“! Натиснете „Нова игра“, за да започнете. 🌟
         </div>
       </section>
 
@@ -94,12 +96,13 @@
           </ul>
         </div>
       </aside>
+
       <section class="rules-section">
         <div class="rules-box wide-rules">
           <h2>📘 Подробни правила на играта</h2>
 
           <p class="intro-text">
-            „Лов на Съкровища“ е отборна образователна игра за 2–4 играчи.
+            „Лов на съкровища“ е отборна образователна игра за 2–4 играчи.
             Учителят управлява играта, задава въпросите и определя дали
             отговорът е правилен. Децата отговарят устно.
           </p>
@@ -176,6 +179,7 @@
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="game.js"></script>
 </body>
 
