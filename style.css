@@ -538,7 +538,6 @@ button:disabled {
     background: rgba(0, 0, 0, 0.4);
 }
 
-
 .game-logo,
 .logo-img {
     height: 56px;
@@ -546,7 +545,6 @@ button:disabled {
     display: block;
     filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.9));
 }
-
 
 .modal-content {
     position: relative;
