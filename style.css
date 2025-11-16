@@ -16,6 +16,13 @@ body {
     padding: 16px;
 }
 
+.game-logo,
+.logo-img {
+    height: 56px;
+    width: auto;
+    display: block;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.9));
+}
 
 .top-bar {
     display: flex;
@@ -536,14 +543,6 @@ button:disabled {
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, 0.4);
-}
-
-.game-logo,
-.logo-img {
-    height: 56px;
-    width: auto;
-    display: block;
-    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.9));
 }
 
 .modal-content {
